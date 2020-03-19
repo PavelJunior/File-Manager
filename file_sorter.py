@@ -2,6 +2,8 @@
 import os
 import shutil
 import mimetypes
+import time
+from datetime import datetime, timedelta
 
 
 def get_file_type(obj):
@@ -19,6 +21,39 @@ def get_file_type(obj):
     except AttributeError:
         return 'Other'
 
+
+def get_timezone_difference():
+    t = time.localtime()
+    if t.tm_isdst == 0:
+        return time.timezone
+    else:
+        return time.altzone
+
+
+def sort_files_with_dates(directory_path):
+    shift_to_monday = 259200
+    timezone_difference = get_timezone_difference()
+    week_in_seconds = 604800
+
+    list_of_files = os.listdir(directory_path)
+    for file in list_of_files:
+        file_path = os.path.join(directory_path, file)
+        file_bd = os.stat(file_path).st_birthtime
+        period_start_date_in_seconds = (file_bd // week_in_seconds * week_in_seconds) + timezone_difference - shift_to_monday
+        period_start_date = datetime.fromtimestamp(period_start_date_in_seconds)
+        period_end_date = period_start_date + timedelta(days=7)
+        folder_name = "{} - {} {}".format(period_start_date.strftime("%d %b"), period_end_date.strftime("%d %b"), period_end_date.year)
+
+        print(folder_name)
+
+
+
+    # directory_creation_timestamp = os.path.getctime()
+    # directory_creation_date = datetime.fromtimestamp(directory_creation_timestamp)
+
+sort_files_with_dates('/Users/pavelpysenkin/Desktop/test/')
+
+
 def sort_files(directory_path):
     list_of_files = os.listdir(directory_path)
     reserved_files = ['Images', 'Video', 'Text', 'Audio', 'Fonts', 'Other']
@@ -35,4 +70,4 @@ def sort_files(directory_path):
             os.mkdir(related_directory_path)
         shutil.move(file_path, new_file_path)
 
-sort_files('/Users/pavelpysenkin/Desktop/test/')
+# sort_files('/Users/pavelpysenkin/Desktop/test/')
