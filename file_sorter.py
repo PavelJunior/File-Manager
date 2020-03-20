@@ -3,7 +3,7 @@ import os
 import shutil
 import mimetypes
 import time
-import re
+import stat
 from datetime import datetime, timedelta
 
 
@@ -31,18 +31,20 @@ def get_timezone_difference():
         return time.altzone
 
 
-def sort_files_with_dates(directory_path):
+def sort_files_by_dates(directory_path):
     shift_to_monday = 259200
     timezone_difference = get_timezone_difference()
     week_in_seconds = 604800
+    marking_file_name = '.marking_file'
 
     list_of_files = os.listdir(directory_path)
-    folder_name_pattern = r"^([0-9]{2} [A-Z][a-z]{2}) - ([0-9]{2} [A-Z][a-z]{2}) [0-9]{4}$"
 
     for file in list_of_files:
-        if re.search(folder_name_pattern, file):
-            continue
         file_path = os.path.join(directory_path, file)
+        if file.startswith('.'):
+            continue
+        if os.path.isdir(file_path) and marking_file_name in os.listdir(file_path):
+            continue
         file_bd = os.stat(file_path).st_birthtime
         period_start_date_in_seconds = (file_bd // week_in_seconds * week_in_seconds) + timezone_difference - shift_to_monday
         period_start_date = datetime.fromtimestamp(period_start_date_in_seconds)
@@ -57,11 +59,14 @@ def sort_files_with_dates(directory_path):
 
         if not os.path.exists(related_timeline_path):
             os.mkdir(related_timeline_path)
+            hidden_file_path = os.path.join(related_timeline_path, marking_file_name)
+            open(hidden_file_path, 'w+').close()
         if not os.path.exists(related_directory_path):
             os.mkdir(related_directory_path)
         shutil.move(file_path, new_file_path)
 
-sort_files_with_dates('/Users/pavelpysenkin/Desktop/test/')
+
+sort_files_by_dates('/Users/pavelpysenkin/Desktop/test/')
 
 
 def sort_files(directory_path):
@@ -79,5 +84,6 @@ def sort_files(directory_path):
         if not os.path.exists(related_directory_path):
             os.mkdir(related_directory_path)
         shutil.move(file_path, new_file_path)
+
 
 # sort_files('/Users/pavelpysenkin/Desktop/test/')
