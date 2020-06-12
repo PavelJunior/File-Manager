@@ -76,7 +76,7 @@ class FolderOrganizer:
         else:
             raise ValueError("Frame is not correct!")
 
-    def sort_files_by_date(self, frame, amount=1):
+    def sort_files_by_date(self, time_period='m', amount_of_periods=1):
         list_of_files = os.listdir(self.directory_path)
         for file in list_of_files:
             file_path = os.path.join(self.directory_path, file)
@@ -85,23 +85,19 @@ class FolderOrganizer:
             if os.path.isdir(file_path) and self.marking_file_name in os.listdir(file_path):
                 continue
             file_bd = os.stat(file_path).st_birthtime
-            folder_name = self._get_folder_name_by_date(file_bd, frame, amount)
+            folder_name = self._get_folder_name_by_date(file_bd, time_period, amount_of_periods)
 
-            file_type = self.__get_file_type(file)
-            related_period_path = os.path.join(self.directory_path, folder_name)
-            related_directory_path = os.path.join(related_period_path, file_type)
+            related_directory_path = os.path.join(self.directory_path, folder_name)
             file_path = os.path.join(self.directory_path, file)
             new_file_path = os.path.join(related_directory_path, file)
 
-            if not os.path.exists(related_period_path):
-                os.mkdir(related_period_path)
-                hidden_file_path = os.path.join(related_period_path, self.marking_file_name)
-                open(hidden_file_path, 'w+').close()
             if not os.path.exists(related_directory_path):
                 os.mkdir(related_directory_path)
+                hidden_file_path = os.path.join(related_directory_path, self.marking_file_name)
+                open(hidden_file_path, 'w+').close()
             shutil.move(file_path, new_file_path)
 
-    def sort_files(self):
+    def sort_files_by_type(self):
         list_of_files = os.listdir(self.directory_path)
         for file in list_of_files:
             file_path = os.path.join(self.directory_path, file)
@@ -124,7 +120,7 @@ class FolderOrganizer:
             shutil.move(file_path, new_file_path)
 
 
-    def sort_by_extention(self):
+    def sort_files_by_extention(self):
         list_of_files = os.listdir(self.directory_path)
         for file in list_of_files:
             file_path = os.path.join(self.directory_path, file)
@@ -148,6 +144,37 @@ class FolderOrganizer:
 
             shutil.move(file_path, new_file_path)
 
+    def sort_files(self, sort_order=['t'], time_period='m', amount_of_periods=1):
+        list_of_files = os.listdir(self.directory_path)
 
-file_organizer = FolderOrganizer('/Users/pavelpysenkin/Desktop/test/')
-file_organizer.sort_by_extention()
+        for file in list_of_files:
+            file_path = os.path.join(self.directory_path, file)
+
+            if file.startswith('.'):
+                continue
+            if os.path.isdir(file_path) and self.marking_file_name in os.listdir(file_path):
+                continue
+
+            new_file_path = self.directory_path
+
+            for step in sort_order:
+                if step == 'd':
+                    file_bd = os.stat(file_path).st_birthtime
+                    file_time_frame = self._get_folder_name_by_date(file_bd, time_period, amount_of_periods)
+                    new_file_path = os.path.join(new_file_path, file_time_frame)
+                elif step == 'e':
+                    if os.path.isdir(file_path):
+                        file_extention = 'folders'
+                    else:
+                        file_extention = file.split('.')[-1]
+                    new_file_path = os.path.join(new_file_path, file_extention)
+                elif step == 't':
+                    file_type = self.__get_file_type(file)
+                    new_file_path = os.path.join(new_file_path, file_type)
+
+                if not os.path.exists(new_file_path):
+                    os.mkdir(new_file_path)
+                    hidden_file_path = os.path.join(new_file_path, self.marking_file_name)
+                    open(hidden_file_path, 'w+').close()
+
+            shutil.move(file_path, new_file_path)
