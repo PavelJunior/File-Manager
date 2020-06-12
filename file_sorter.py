@@ -68,7 +68,7 @@ class FolderOrganizer:
         period_end_date_formatted = period_end_date.strftime("%d %b")
         return "{} - {} {}".format(period_start_date_formatted, period_end_date_formatted, period_end_date.year)
 
-    def _get_folder_name_by_dates(self, file_bd, frame, amount):
+    def _get_folder_name_by_date(self, file_bd, frame, amount):
         if frame == 'm':
             return self.__get_folder_name_by_month(file_bd, amount)
         elif frame == 'd' or frame == 'w':
@@ -76,7 +76,7 @@ class FolderOrganizer:
         else:
             raise ValueError("Frame is not correct!")
 
-    def sort_files_by_dates(self, frame, amount):
+    def sort_files_by_date(self, frame, amount=1):
         list_of_files = os.listdir(self.directory_path)
         for file in list_of_files:
             file_path = os.path.join(self.directory_path, file)
@@ -85,7 +85,7 @@ class FolderOrganizer:
             if os.path.isdir(file_path) and self.marking_file_name in os.listdir(file_path):
                 continue
             file_bd = os.stat(file_path).st_birthtime
-            folder_name = self._get_folder_name_by_dates(file_bd, frame, amount)
+            folder_name = self._get_folder_name_by_date(file_bd, frame, amount)
 
             file_type = self.__get_file_type(file)
             related_period_path = os.path.join(self.directory_path, folder_name)
@@ -124,5 +124,30 @@ class FolderOrganizer:
             shutil.move(file_path, new_file_path)
 
 
+    def sort_by_extention(self):
+        list_of_files = os.listdir(self.directory_path)
+        for file in list_of_files:
+            file_path = os.path.join(self.directory_path, file)
+
+            if file.startswith('.'):
+                continue
+            if os.path.isdir(file_path) and self.marking_file_name in os.listdir(file_path):
+                continue
+            if os.path.isdir(file_path):
+                file_extention = 'folders'
+            else:
+                file_extention = file.split('.')[-1]
+            related_directory_path = os.path.join(self.directory_path, file_extention)
+
+            new_file_path = os.path.join(related_directory_path, file)
+
+            if not os.path.exists(related_directory_path):
+                os.mkdir(related_directory_path)
+                hidden_file_path = os.path.join(related_directory_path, self.marking_file_name)
+                open(hidden_file_path, 'w+').close()
+
+            shutil.move(file_path, new_file_path)
+
+
 file_organizer = FolderOrganizer('/Users/pavelpysenkin/Desktop/test/')
-file_organizer.sort_files()
+file_organizer.sort_by_extention()
