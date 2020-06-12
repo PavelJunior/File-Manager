@@ -119,7 +119,6 @@ class FolderOrganizer:
 
             shutil.move(file_path, new_file_path)
 
-
     def sort_files_by_extention(self):
         list_of_files = os.listdir(self.directory_path)
         for file in list_of_files:
