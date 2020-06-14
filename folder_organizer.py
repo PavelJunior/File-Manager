@@ -21,10 +21,10 @@ class FolderOrganizer:
     def sort_files(self, sort_order=['d'], time_period='m', amount_of_periods=1):
         list_of_files = os.listdir(self.directory_path)
 
-        for file in list_of_files:
-            file_path = os.path.join(self.directory_path, file)
+        for file_name in list_of_files:
+            file_path = os.path.join(self.directory_path, file_name)
 
-            if file.startswith('.'):
+            if file_name.startswith('.'):
                 continue
             if os.path.isdir(file_path) and self.marking_file_name in os.listdir(file_path):
                 continue
@@ -37,18 +37,36 @@ class FolderOrganizer:
                     file_time_frame = self._get_folder_name_by_date(file_bd, time_period, amount_of_periods)
                     new_file_path = os.path.join(new_file_path, file_time_frame)
                 elif step == 'e':
-                    file_extension = self._get_folder_name_by_extention(file_path, file)
+                    file_extension = self._get_folder_name_by_extention(file_path, file_name)
                     new_file_path = os.path.join(new_file_path, file_extension)
                 elif step == 't':
-                    file_type = self._get_folder_name_by_type(file)
+                    file_type = self._get_folder_name_by_type(file_name)
                     new_file_path = os.path.join(new_file_path, file_type)
+                else:
+                    raise ValueError("Used wrong letters for sort order. Only letters 'd','e','t' are acceptable.")
 
                 if not os.path.exists(new_file_path):
                     os.mkdir(new_file_path)
                     hidden_file_path = os.path.join(new_file_path, self.marking_file_name)
                     open(hidden_file_path, 'w+').close()
 
+            if os.path.exists(os.path.join(new_file_path, file_name)):
+                file_name = self._alter_file_name(file_name, new_file_path)
+
+            new_file_path = os.path.join(new_file_path, file_name)
             shutil.move(file_path, new_file_path)
+
+    def _alter_file_name(self, file_name, new_file_path):
+        counter = 2
+        new_name = file_name
+        while os.path.exists(os.path.join(new_file_path, new_name)):
+            if '.' in file_name:
+                file_parts = file_name.rsplit('.')
+                new_name = file_parts[0] + f" ({counter})." + file_parts[1]
+            else:
+                new_name = file_name + f" ({counter})"
+            counter += 1
+        return new_name
 
     def _get_folder_name_by_type(self, obj):
         mime = mimetypes.guess_type(obj)[0]
