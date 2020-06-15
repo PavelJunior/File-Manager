@@ -82,7 +82,8 @@ class FolderOrganizer:
         elif time_period == 'd' or time_period == 'w':
             return self.__get_folder_name_by_day_or_week(file_bd, time_period == 'd', qty_of_periods)
         else:
-            raise ValueError("Frame is not correct!")
+            raise ValueError("Selected time period is not supported. "
+                             "Choose one of the following values: 'd', 'w', 'm'")
 
     def _get_folder_name_by_extention(self, file_path, file_name):
         if os.path.isdir(file_path):
@@ -94,6 +95,9 @@ class FolderOrganizer:
         return file_extension
 
     def __get_folder_name_by_month(self, file_bd, qty_of_months):
+        if qty_of_months not in [1, 2, 3, 4, 6]:
+            raise ValueError("Selected month quantity is not supported. "
+                             "Choose one of the following values: 1,2,3,4,6")
         file_bd_date = datetime.fromtimestamp(file_bd)
         start_month = (file_bd_date.month // qty_of_months * qty_of_months) + 1
         period_start_date = file_bd_date.replace(day=1, month=start_month)

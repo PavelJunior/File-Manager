@@ -18,7 +18,7 @@ parser.add_argument('folder_path', help='Folder that you want to sort')
 args = parser.parse_args()
 
 if args.observer:
-    event_handler = FolderObserver(args.folder_path, args.order, args.time_period, args.quantity_of_periods)
+    event_handler = FolderObserver(args.folder_path, args.order, args.time_period, int(args.quantity_of_periods))
     observer = Observer()
     observer.schedule(event_handler, args.folder_path)
     observer.start()
@@ -31,7 +31,7 @@ if args.observer:
     observer.join()
 else:
     file_sorter = FolderOrganizer(args.folder_path)
-    file_sorter.sort_files(args.order, args.time_period, args.amount_of_periods)
+    file_sorter.sort_files(args.order, args.time_period, int(args.quantity_of_periods))
 
 
 
