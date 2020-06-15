@@ -7,16 +7,21 @@ from datetime import datetime, timedelta
 
 
 class FolderOrganizer:
-    def __init__(self, directory_path):
-        self.directory_path = directory_path
-        self.marking_file_name = '.marking_file'
-        self.file_types = {
+    MARKING_FILE_NAME = '.marking_file'
+    ALLOWED_MONTHS_QTY = [1, 2, 3, 4, 6]
+    SHIFT_TO_MONDAY = 259200
+    DAY_IN_SECONDS = 86400
+    WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
+    FILE_TYPES = {
             'image': 'Images',
             'video': 'Video',
             'text': 'Text',
             'audio': 'Audio',
             'font': 'Fonts'
         }
+
+    def __init__(self, directory_path):
+        self.directory_path = directory_path
 
     def sort_files(self, sort_order=['d'], time_period='m', qty_of_periods=1):
         list_of_files = os.listdir(self.directory_path)
@@ -26,7 +31,7 @@ class FolderOrganizer:
 
             if file_name.startswith('.'):
                 continue
-            if os.path.isdir(file_path) and self.marking_file_name in os.listdir(file_path):
+            if os.path.isdir(file_path) and self.MARKING_FILE_NAME in os.listdir(file_path):
                 continue
 
             new_file_path = self.directory_path
@@ -47,7 +52,7 @@ class FolderOrganizer:
 
                 if not os.path.exists(new_file_path):
                     os.mkdir(new_file_path)
-                    hidden_file_path = os.path.join(new_file_path, self.marking_file_name)
+                    hidden_file_path = os.path.join(new_file_path, self.MARKING_FILE_NAME)
                     open(hidden_file_path, 'w+').close()
 
             if os.path.exists(os.path.join(new_file_path, file_name)):
@@ -72,7 +77,7 @@ class FolderOrganizer:
         mime = mimetypes.guess_type(obj)[0]
         try:
             file_type = mime.split('/')[0]
-            return self.file_types.get(file_type, 'Other')
+            return self.FILE_TYPES.get(file_type, 'Other')
         except AttributeError:
             return 'Other'
 
@@ -95,7 +100,7 @@ class FolderOrganizer:
         return file_extension
 
     def __get_folder_name_by_month(self, file_bd, qty_of_months):
-        if qty_of_months not in [1, 2, 3, 4, 6]:
+        if qty_of_months not in self.ALLOWED_MONTHS_QTY:
             raise ValueError("Selected month quantity is not supported. "
                              "Choose one of the following values: 1,2,3,4,6")
         file_bd_date = datetime.fromtimestamp(file_bd)
@@ -110,19 +115,16 @@ class FolderOrganizer:
         return "{} - {} {}".format(period_start_date_formatted, period_end_date_formatted, period_end_date.year)
 
     def __get_folder_name_by_day_or_week(self, file_bd, isDay, qty_of_periods):
-        shift_to_monday = 259200
         timezone_difference = self.__get_timezone_difference()
-        day_in_seconds = 86400
-        week_in_seconds = day_in_seconds * 7
 
         if isDay:
-            current_period_in_seconds = day_in_seconds * qty_of_periods
+            current_period_in_seconds = self.DAY_IN_SECONDS * qty_of_periods
             current_period_in_days = qty_of_periods
         else:
-            current_period_in_seconds = week_in_seconds * qty_of_periods
+            current_period_in_seconds = self.WEEK_IN_SECONDS * qty_of_periods
             current_period_in_days = qty_of_periods * 7
         raw_period_start_date_in_seconds = file_bd // current_period_in_seconds * current_period_in_seconds
-        period_start_date_in_seconds = raw_period_start_date_in_seconds + timezone_difference - shift_to_monday
+        period_start_date_in_seconds = raw_period_start_date_in_seconds + timezone_difference - self.SHIFT_TO_MONDAY
         period_start_date = datetime.fromtimestamp(period_start_date_in_seconds)
         if isDay and qty_of_periods == 1:
             period_start_date_formatted = period_start_date.strftime("%d %B")
