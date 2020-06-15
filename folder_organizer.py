@@ -18,7 +18,7 @@ class FolderOrganizer:
             'font': 'Fonts'
         }
 
-    def sort_files(self, sort_order=['d'], time_period='m', amount_of_periods=1):
+    def sort_files(self, sort_order=['d'], time_period='m', qty_of_periods=1):
         list_of_files = os.listdir(self.directory_path)
 
         for file_name in list_of_files:
@@ -34,7 +34,7 @@ class FolderOrganizer:
             for step in sort_order:
                 if step == 'd':
                     file_bd = os.stat(file_path).st_birthtime
-                    file_time_frame = self._get_folder_name_by_date(file_bd, time_period, amount_of_periods)
+                    file_time_frame = self._get_folder_name_by_date(file_bd, time_period, qty_of_periods)
                     new_file_path = os.path.join(new_file_path, file_time_frame)
                 elif step == 'e':
                     file_extension = self._get_folder_name_by_extention(file_path, file_name)
@@ -76,11 +76,11 @@ class FolderOrganizer:
         except AttributeError:
             return 'Other'
 
-    def _get_folder_name_by_date(self, file_bd, frame, amount):
-        if frame == 'm':
-            return self.__get_folder_name_by_month(file_bd, amount)
-        elif frame == 'd' or frame == 'w':
-            return self.__get_folder_name_by_day_or_week(file_bd, frame == 'd', amount)
+    def _get_folder_name_by_date(self, file_bd, time_period, qty_of_periods):
+        if time_period == 'm':
+            return self.__get_folder_name_by_month(file_bd, qty_of_periods)
+        elif time_period == 'd' or time_period == 'w':
+            return self.__get_folder_name_by_day_or_week(file_bd, time_period == 'd', qty_of_periods)
         else:
             raise ValueError("Frame is not correct!")
 
@@ -93,34 +93,34 @@ class FolderOrganizer:
             file_extension = 'other'
         return file_extension
 
-    def __get_folder_name_by_month(self, file_bd, amount):
+    def __get_folder_name_by_month(self, file_bd, qty_of_months):
         file_bd_date = datetime.fromtimestamp(file_bd)
-        start_month = (file_bd_date.month // amount * amount) + 1
+        start_month = (file_bd_date.month // qty_of_months * qty_of_months) + 1
         period_start_date = file_bd_date.replace(day=1, month=start_month)
-        end_month = period_start_date.month + amount - 1
+        end_month = period_start_date.month + qty_of_months - 1
         period_start_date_formatted = period_start_date.strftime("%B")
-        if amount == 1:
+        if qty_of_months == 1:
             return "{} {}".format(period_start_date_formatted, period_start_date.year)
         period_end_date = period_start_date.replace(month=end_month)
         period_end_date_formatted = period_end_date.strftime("%B")
         return "{} - {} {}".format(period_start_date_formatted, period_end_date_formatted, period_end_date.year)
 
-    def __get_folder_name_by_day_or_week(self, file_bd, isDay, amount):
+    def __get_folder_name_by_day_or_week(self, file_bd, isDay, qty_of_periods):
         shift_to_monday = 259200
         timezone_difference = self.__get_timezone_difference()
         day_in_seconds = 86400
         week_in_seconds = day_in_seconds * 7
 
         if isDay:
-            current_period_in_seconds = day_in_seconds * amount
-            current_period_in_days = amount
+            current_period_in_seconds = day_in_seconds * qty_of_periods
+            current_period_in_days = qty_of_periods
         else:
-            current_period_in_seconds = week_in_seconds * amount
-            current_period_in_days = amount * 7
+            current_period_in_seconds = week_in_seconds * qty_of_periods
+            current_period_in_days = qty_of_periods * 7
         raw_period_start_date_in_seconds = file_bd // current_period_in_seconds * current_period_in_seconds
         period_start_date_in_seconds = raw_period_start_date_in_seconds + timezone_difference - shift_to_monday
         period_start_date = datetime.fromtimestamp(period_start_date_in_seconds)
-        if isDay and amount == 1:
+        if isDay and qty_of_periods == 1:
             period_start_date_formatted = period_start_date.strftime("%d %B")
             return "{} {}".format(period_start_date_formatted, period_start_date.year)
         period_start_date_formatted = period_start_date.strftime("%d %b")
