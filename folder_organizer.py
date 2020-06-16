@@ -12,6 +12,7 @@ class FolderOrganizer:
     SHIFT_TO_MONDAY = 259200
     DAY_IN_SECONDS = 86400
     WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
+    DEFAULT_FOLDER_NAME = 'Other'
     FILE_TYPES = {
             'image': 'Images',
             'video': 'Video',
@@ -112,15 +113,15 @@ class FolderOrganizer:
             obj (String): Name of the object.
 
         Returns:
-            String: One of the values from FILE_TYPES constant, or 'Other'
+            String: One of the values from FILE_TYPES constant, or DEFAULT_FOLDER_NAME
         """
         print(obj)
         mime = mimetypes.guess_type(obj)[0]
         try:
             file_type = mime.split('/')[0]
-            return self.FILE_TYPES.get(file_type, 'Other')
+            return self.FILE_TYPES.get(file_type, self.DEFAULT_FOLDER_NAME)
         except AttributeError:
-            return 'Other'
+            return self.DEFAULT_FOLDER_NAME
 
     def _get_folder_name_by_date(self, file_bd, time_period, qty_of_periods):
         """
@@ -157,14 +158,14 @@ class FolderOrganizer:
         Returns:
             String: 'Folder' if provided object was folder,
             extension if provided object has extension,
-            'Other' if neither above are true.
+            DEFAULT_FOLDER_NAME if neither above are true.
         """
         if os.path.isdir(file_path):
             file_extension = 'Folders'
         elif '.' in file_name:
             file_extension = file_name.split('.')[-1]
         else:
-            file_extension = 'Other'
+            file_extension = self.DEFAULT_FOLDER_NAME
         return file_extension
 
     def __get_folder_name_by_month(self, file_bd, qty_of_months):
@@ -178,6 +179,9 @@ class FolderOrganizer:
 
         Returns:
             String: Name of a folder for a file in chosen time range.
+
+        Raises:
+            ValueError: if qty_of_months is not in ALLOWED_MONTHS_QTY
         """
         if qty_of_months not in self.ALLOWED_MONTHS_QTY:
             raise ValueError("Selected month quantity is not supported. "
