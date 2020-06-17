@@ -14,7 +14,9 @@ parser.add_argument('-period', '--time-period', choices=['d', 'w', 'm'], default
                     help='Time period used for date sorting (d - day, w = week, m = month)')
 parser.add_argument('-qty', '--quantity-of-periods',  default=1, metavar='\b',
                     help='Amount of time periods used for date sorting')
-parser.add_argument('-o', '--observer',  default=False, action='store_true')
+parser.add_argument('-o', '--observer',  default=False, action='store_true',
+                    help="Start observer that will keep track and sort new files appear in folder")
+
 parser.add_argument('folder_path', help='Folder that you want to sort')
 
 # Feeding provided arguments to the parser
