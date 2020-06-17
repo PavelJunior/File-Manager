@@ -115,7 +115,6 @@ class FolderOrganizer:
         Returns:
             String: One of the values from FILE_TYPES constant, or DEFAULT_FOLDER_NAME
         """
-        print(obj)
         mime = mimetypes.guess_type(obj)[0]
         try:
             file_type = mime.split('/')[0]
@@ -126,7 +125,7 @@ class FolderOrganizer:
     def _get_folder_name_by_date(self, file_bd, time_period, qty_of_periods):
         """
         The intermediate function to get folder name, depending on file creation
-        time and selected time period and quantity of that period.
+        time, selected time period and quantity of that period.
 
         Parameters:
             file_bd (Float): Unix time of creation of file in seconds.
@@ -171,7 +170,7 @@ class FolderOrganizer:
     def __get_folder_name_by_month(self, file_bd, qty_of_months):
         """
         The function to generate name of folder, depending on
-        selected month quantity and file creation time.
+        selected month quantity and file creation date.
 
         Parameters:
             file_bd (Float): Unix time of a creation of the file in seconds.
@@ -200,8 +199,8 @@ class FolderOrganizer:
     def __get_folder_name_by_day_or_week(self, file_bd, isDay, qty_of_periods):
         """
         The function to generate name of folder, depending on
-        file creation time and selected time period (days or weeks)
-        and quantity of that period.
+        file creation date, selected time period (days or weeks)
+        and quantity of that periods.
 
         Parameters:
             file_bd (Float): Unix time of creation of file in seconds.
@@ -229,7 +228,6 @@ class FolderOrganizer:
         period_end_date = period_start_date + timedelta(days=current_period_in_days-1)
         period_end_date_formatted = period_end_date.strftime("%d %b")
         return "{} - {} {}".format(period_start_date_formatted, period_end_date_formatted, period_end_date.year)
-
 
     def __get_timezone_difference(self):
         """

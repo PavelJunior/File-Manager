@@ -5,7 +5,7 @@ from folder_organizer import FolderOrganizer
 import argparse
 
 # Creating a parser for CLI arguments.
-# usage: file_sorter.py [-h] [-period] [-qty] [-o] order folder_path
+# usage: file_manager.py [-h] [-period] [-qty] [-o] order folder_path
 parser = argparse.ArgumentParser(description='Process some arguments.')
 
 parser.add_argument('order', help='Choose from one to three of sorting types in any order you prefer '
