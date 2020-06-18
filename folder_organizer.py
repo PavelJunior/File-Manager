@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 import os
+import platform
+import ctypes
 import shutil
 import mimetypes
 import time
@@ -12,6 +14,7 @@ class FolderOrganizer:
     SHIFT_TO_MONDAY = 259200
     DAY_IN_SECONDS = 86400
     WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
+    FILE_ATTRIBUTE_HIDDEN = 0x02
     DEFAULT_FOLDER_NAME = 'Other'
     FILE_TYPES = {
             'image': 'Images',
@@ -55,7 +58,7 @@ class FolderOrganizer:
             # Iterate over all elements from sort_order, and create new path for file according to sort properties.
             for step in sort_order:
                 if step == 'd':
-                    file_bd = os.stat(file_path).st_birthtime
+                    file_bd = self._get_file_creation_date(file_path)
                     file_time_frame = self._get_folder_name_by_date(file_bd, time_period, qty_of_periods)
                     new_file_path = os.path.join(new_file_path, file_time_frame)
                 elif step == 'e':
@@ -70,8 +73,7 @@ class FolderOrganizer:
                 # If folder in new_file_path is not exist in our system we need to create it and mark.
                 if not os.path.exists(new_file_path):
                     os.mkdir(new_file_path)
-                    hidden_file_path = os.path.join(new_file_path, self.MARKING_FILE_NAME)
-                    open(hidden_file_path, 'w+').close()
+                    self._create_hidden_file(new_file_path)
 
             # If file with the same name already in destination folder we need to change file name to avoid
             # errors and files overwriting.
@@ -81,6 +83,26 @@ class FolderOrganizer:
             # Creating a final file path, and move the file.
             new_file_path = os.path.join(new_file_path, file_name)
             shutil.move(file_path, new_file_path)
+
+    def _create_hidden_file(self, directory_path):
+        hidden_file_path = os.path.join(directory_path, self.MARKING_FILE_NAME)
+        open(hidden_file_path, 'w+').close()
+
+        if os.name == 'nt':
+            ret = ctypes.windll.kernel32.SetFileAttributesW(hidden_file_path, self.FILE_ATTRIBUTE_HIDDEN)
+            if not ret:
+                raise ctypes.WinError()
+
+    def _get_file_creation_date(self, file_path):
+        platform_name = platform.system()
+        if platform_name == 'Darwin':
+            return os.stat(file_path).st_birthtime
+        elif platform_name == 'Windows':
+            return os.path.getctime(file_path)
+        elif platform_name == 'Linux':
+            print("Unfortunately you are using Linux, there is no easy way to get files creation date. "
+                  "So, we will continue with files update dates.")
+            return os.path.getctime(file_path)
 
     def _alter_file_name(self, file_name, file_path):
         """
