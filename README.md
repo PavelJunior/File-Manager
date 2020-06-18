@@ -18,3 +18,5 @@ You can choose one or many methods of sorting files in any order:
       -period, --time-period          Time period used for date sorting (d = day, w = week, m = month)
       -qty, --quantity-of-periods     Amount of time periods used for date sorting
       -o, --observer                  Start observer that will keep track and sort new files appear in folder
+# Examples
+![Image of Examples](https://github.com/PavelJunior/File-Manager/blob/master/project.png)
