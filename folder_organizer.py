@@ -26,6 +26,7 @@ class FolderOrganizer:
 
     def __init__(self, directory_path):
         self.directory_path = directory_path
+        self.notice_for_linux_showed = False
 
     def sort_files(self, sort_order=['d'], time_period='m', qty_of_periods=1):
         """
@@ -85,6 +86,16 @@ class FolderOrganizer:
             shutil.move(file_path, new_file_path)
 
     def _create_hidden_file(self, directory_path):
+        """
+        The function to create hidden file, to mark directories that created by this class.
+        Method constructed to support all operating system.
+
+        Parameters:
+            directory_path (String): Path to the directory when we need to create hidden file.
+
+        Raises:
+            WinError: If there was a problem to add hidden attribute in Windows.
+        """
         hidden_file_path = os.path.join(directory_path, self.MARKING_FILE_NAME)
         open(hidden_file_path, 'w+').close()
 
@@ -94,14 +105,26 @@ class FolderOrganizer:
                 raise ctypes.WinError()
 
     def _get_file_creation_date(self, file_path):
+        """
+        The function to get file creation date depending on operating system.
+        Note: There is no easy way to get files creation date on Linux. So, we will take file update date instead.
+
+        Parameters:
+            file_path (String): Path to the file.
+
+        Returns:
+            Float: File creation date in seconds
+        """
         platform_name = platform.system()
         if platform_name == 'Darwin':
             return os.stat(file_path).st_birthtime
         elif platform_name == 'Windows':
             return os.path.getctime(file_path)
         elif platform_name == 'Linux':
-            print("Unfortunately you are using Linux, there is no easy way to get files creation date. "
-                  "So, we will continue with files update dates.")
+            if not self.notice_for_linux_showed:
+                print("Unfortunately you are using Linux, there is no easy way to get files creation date. "
+                      "So, we will continue with files update dates.")
+                self.notice_for_linux_showed = True
             return os.path.getctime(file_path)
 
     def _alter_file_name(self, file_name, file_path):

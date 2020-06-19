@@ -6,8 +6,7 @@ import argparse
 
 # Creating a parser for CLI arguments.
 # usage: file_manager.py [-h] [-period] [-qty] [-o] order folder_path
-parser = argparse.ArgumentParser(description='Process some arguments.')
-
+parser = argparse.ArgumentParser(description='file_manager.py command line interface ')
 parser.add_argument('order', help='Choose from one to three of sorting types in any order you prefer '
                                   '(t - by type, e - by extension, d - by date) [Ex: "det", "d", "et"]')
 parser.add_argument('-period', '--time-period', choices=['d', 'w', 'm'], default='m', metavar='\b',
