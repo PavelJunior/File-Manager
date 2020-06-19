@@ -16,4 +16,8 @@ class FolderObserver(FileSystemEventHandler):
         file_sorter = FolderOrganizer(self.folder_to_track)
         file_sorter.sort_files(self.sort_order, self.time_period, self.amount_of_periods)
 
+    def on_created(self, event):
+        file_sorter = FolderOrganizer(self.folder_to_track)
+        file_sorter.sort_files(self.sort_order, self.time_period, self.amount_of_periods)
+
 
