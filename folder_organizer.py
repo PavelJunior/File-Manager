@@ -123,7 +123,7 @@ class FolderOrganizer:
         elif platform_name == 'Linux':
             if not self.notice_for_linux_showed:
                 print("Unfortunately you are using Linux, there is no easy way to get files creation date. "
-                      "So, we will continue with files update dates.")
+                      "So, we will continue with file update dates.")
                 self.notice_for_linux_showed = True
             return os.path.getctime(file_path)
 

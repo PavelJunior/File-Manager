@@ -26,6 +26,7 @@ if args.observer:
     # tracked directory, and with help of FolderObserver will move file thta files to the right folder,
     # depending on provided sorting options.
     event_handler = FolderObserver(args.folder_path, args.order, args.time_period, int(args.quantity_of_periods))
+    print("Press Ctrl + C to stop observer")
     observer = Observer()
     observer.schedule(event_handler, args.folder_path)
     observer.start()

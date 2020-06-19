@@ -10,6 +10,7 @@ class FolderObserver(FileSystemEventHandler):
         self.sort_order = sort_order
         self.time_period = time_period
         self.amount_of_periods = amount_of_periods
+        self.on_modified(None)
 
     def on_modified(self, event):
         file_sorter = FolderOrganizer(self.folder_to_track)
